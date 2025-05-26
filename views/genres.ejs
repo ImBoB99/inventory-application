@@ -10,6 +10,13 @@
     <h1>Genres Page</h1>
     <% if (genres) { %> <%genres.forEach(genres => {%>
     <h2><%= genres.name %></h2>
-    <%})%> <%}%> <%- include('layout/footer') %>
+    <%})%> <%}%> 
+    <h3>Add New Genre</h3>
+    <form action="/genres/addGenre" method="post">
+      <label for="genreName">Genre Name:</label>
+      <input type="text" name="genreName" id="genreName">
+      <button type="submit">Submit</button>
+    </form>
+    <%- include('layout/footer') %>
   </body>
 </html>

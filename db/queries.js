@@ -37,4 +37,13 @@ async function getMovieById(id) {
   return createMoviesData(rows)[0];
 }
 
-module.exports = { getAllMovies, getAllGenres, getAllActors, getMovieById };
+
+async function addActor(name) {
+  await pool.query("INSERT INTO actors (name) VALUES ($1)", [name])
+}
+
+async function addGenre(name) {
+  await pool.query("INSERT INTO genres (name) VALUES ($1)", [name])
+}
+
+module.exports = { getAllMovies, getAllGenres, getAllActors, getMovieById, addActor, addGenre };
