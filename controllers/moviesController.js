@@ -5,13 +5,15 @@ const movieAddPost = async (req, res) => {
 };
 
 const movieByIdGet = async (req, res) => {
-  console.log("Get a post by id");
+  const id = req.params.id;
+  const movie = await db.getMovieById(id);
+  res.render("movie", {movie})
+
 };
 
 const moviesAllGet = async (req, res) => {
-  console.log("Get ALL movies");
   const movies = await db.getAllMovies();
-  console.log(movies)
+  res.render("movies", {movies})
 };
 
 module.exports = { moviesAllGet, movieAddPost, movieByIdGet };

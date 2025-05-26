@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= movie.name %></title>
+  </head>
+  <body>
+    <%- include('layout/header') %>
+    <h1><%= movie.name %> Page</h1>
+    <% if (movie) { %>
+    <h2><%= movie.name %></h2>
+    <h3><%= movie.genre %></h3>
+    <h3><%= movie.actors.join(', ') %></h3>
+    <% } %>
+    <%- include('layout/footer') %>
+  </body>
+</html>
