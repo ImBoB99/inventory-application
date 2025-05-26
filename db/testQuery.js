@@ -1,18 +1,11 @@
 const pool = require("./pool")
 
-async function testQuery() {
-  const SQL = `
-  SELECT movies.id, movies.name AS movieName, genres.name AS genreName, actors.id AS actorId, actors.name AS actorName
-  FROM movies
-  INNER JOIN genres ON movies.genre_id = genres.id
-  INNER JOIN movie_actors ON movie_actors.movie_id = movies.id
-  INNER JOIN actors ON movie_actors.actor_id = actors.id
-  WHERE movies.id = 1;
-  `
-
-  const {rows} = await pool.query(SQL)
-
-  console.log(rows)
+async function testQuery(name, genreId, actorIds) {
+  const {rows} = await pool.query("INSERT INTO movies (name, genre_id) VALUES ($1, $2) RETURNING id", [name, genreId]);
+  const insertedMovieId = rows[0].id;
+  actorIds.forEach(actor => {
+    pool.query("INSERT INTO movie_actors (movie_id, actor_id) VALUES ($1, $2)", [insertedMovieId, actor])
+  })
 }
 
-testQuery();
+testQuery("Aliens Test 2", 1, [1]);

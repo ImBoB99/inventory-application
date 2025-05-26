@@ -46,4 +46,15 @@ async function addGenre(name) {
   await pool.query("INSERT INTO genres (name) VALUES ($1)", [name])
 }
 
-module.exports = { getAllMovies, getAllGenres, getAllActors, getMovieById, addActor, addGenre };
+async function addMovie(name, genreId, actorIds) {
+  //name of movie "Aliens 3"
+  //genreId "1"
+  // ["Sidney Sweeney"] or ["Kaley Coco", "Howard Walowitz"]
+  const {rows} = await pool.query("INSERT INTO movies (name, genre_id) VALUES ($1, $2) RETURNING id", [name, genreId]);
+  const insertedMovieId = rows[0].id;
+  for (const actorId of actorIds) {
+    await pool.query("INSERT INTO movie_actors (movie_id, actor_id) VALUES ($1, $2)", [insertedMovieId, actorId])
+  }
+}
+
+module.exports = { getAllMovies, getAllGenres, getAllActors, getMovieById, addActor, addGenre, addMovie };

@@ -12,6 +12,65 @@
     <h2><%= movie.name %></h2>
     <h3><%= movie.genre %></h3>
     <h3><%= movie.actors.join(', ') %></h3>
-    <%})%> <%}%> <%- include('layout/footer') %>
+    <%})%> <%}%> 
+
+    <h3>Add New Movie</h3>
+    <form action="/movies/addMovie" method="post">
+      <label for="movieName">Movie Name:</label>
+      <input type="text" name="movieName" id="movieName">
+      <% if (genres) { %>
+        <label for="movieGenre">Movie Genre:</label>
+        <select name="movieGenre" id="movieGenre">
+          <% genres.forEach(genre => { %>
+            <option value="<%= genre.id %>"><%= genre.name %></option>
+          <% }) %>
+        </select>
+      <% } %>
+      <% if (actors) { %>
+        <label for="movieActors">Movie Actors:</label>
+        <select id="actorSelect">
+          <% actors.forEach(actor => { %>
+            <option value="<%= actor.id %>"><%= actor.name %></option>
+          <% }) %>
+        </select>
+        <button type="button" onclick="addActor()">Add Actor</button>
+        
+        <ul id="selectedActorsList"></ul>
+        
+        <!-- Hidden input for form submission -->
+        <input type="hidden" name="movieActors" id="movieActorsInput">
+        
+      <% } %>
+      <button type="submit">Submit</button>
+    </form>
+    <%- include('layout/footer') %>
   </body>
+
+  <script>
+    const selectedActorIds = new Set();
+    const actorSelect = document.getElementById("actorSelect");
+    const selectedList = document.getElementById("selectedActorsList");
+    const hiddenInput = document.getElementById("movieActorsInput");
+  
+    function addActor() {
+      const actorId = actorSelect.value;
+      const actorName = actorSelect.options[actorSelect.selectedIndex].text;
+  
+      if (!selectedActorIds.has(actorId)) {
+        selectedActorIds.add(actorId);
+  
+        const li = document.createElement("li");
+        li.textContent = actorName;
+        li.dataset.id = actorId;
+        selectedList.appendChild(li);
+  
+        updateHiddenInput();
+      }
+    }
+  
+    function updateHiddenInput() {
+      hiddenInput.value = Array.from(selectedActorIds).join(',');
+    }
+  </script>
+  
 </html>
