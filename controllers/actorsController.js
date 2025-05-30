@@ -3,13 +3,42 @@ const db = require("../db/queries")
 const actorAddPost = async (req, res) => {
   console.log("Add actor to the db");
   const name = req.body.actorName;
-  await db.addActor(name)
-  res.redirect("/actors");
+
+  try {
+    await db.addActor(name);
+    res.redirect("/actors");
+  } catch (error) {
+    console.error("Error adding actor:", error);
+    res.redirect("/actors");
+  }
 };
 
 const actorsAllGet = async (req, res) => {
-  const actors = await db.getAllActors();
-  res.render("actors", {actors})
+  try {
+    const actors = await db.getAllActors();
+    res.render("actors", {actors})
+  } catch (error) {
+    console.error("Error getting actors:", error);
+    res.render("actors", { actors: [], error: "Failed to load actors."})
+  }
 };
 
-module.exports = { actorAddPost, actorsAllGet };
+const actorsDeletePost = async (req,res) => {
+  console.log("Delete actor from db")
+  const actorId = req.body.id;
+
+  if (!actorId) {
+    res.status(400).json({success: false, message: "Missing actor ID."})
+  } else {
+    try {
+      await db.deleteActor(actorId)
+      await db.deleteMoviesWithoutActors();
+      res.json({success: true, message: `Actor ${actorId} deleted.`})
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "There was a server error during deletion" })
+    }
+  }
+}
+
+module.exports = { actorAddPost, actorsAllGet, actorsDeletePost };

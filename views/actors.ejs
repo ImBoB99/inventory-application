@@ -8,15 +8,51 @@
   <body>
     <%- include('layout/header') %>
     <h1>Actors Page</h1>
-    <% if (actors) { %> <%actors.forEach(actors => {%>
-    <h2><%= actors.name %></h2>
-    <%})%> <%}%> 
+    <div style="display: flex; flex-direction: column; gap: 1rem">
+      <% if (actors) { %> <%actors.forEach(actor => {%>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem">
+        <h2 style="margin: 0"><%= actor.name %></h2>
+        <button id="deleteActor" data-id="<%= actor.id %>">x</button>
+      </div>
+      <%})%> <%}%>
+    </div>
     <h3>Add New Actor</h3>
     <form action="/actors/addActor" method="post">
       <label for="actorName">Actor Name:</label>
-      <input type="text" name="actorName" id="actorName">
+      <input type="text" name="actorName" id="actorName" />
       <button type="submit">Submit</button>
     </form>
     <%- include('layout/footer') %>
   </body>
+
+  <script>
+    const deleteActorButtons = document.querySelectorAll("#deleteActor");
+
+    deleteActorButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const actorId = button.dataset.id;
+
+        try {
+          const res = await fetch("/actors/deleteActor", {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify( {id: actorId})
+          });
+
+          const data = await res.json();
+          console.log(data);
+
+          if (data.success) {
+            window.location.reload();
+          } else {
+            console.error("Server error:", data.message)
+          }
+        } catch (error) {
+          console.error("Error deleting actor:", error)
+        }
+      });
+    });
+  </script>
 </html>

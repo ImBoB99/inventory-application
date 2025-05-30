@@ -8,11 +8,48 @@
   <body>
     <%- include('layout/header') %>
     <h1><%= movie.name %> Page</h1>
+
     <% if (movie) { %>
-    <h2><%= movie.name %></h2>
-    <h3><%= movie.genre %></h3>
-    <h3><%= movie.actors.join(', ') %></h3>
+      <h2><%= movie.name %></h2>
+      <h3>Genre: <%= movie.genre %></h3>
+      <h3>Actors: <%= movie.actors.join(', ') %></h3>
+
+      <!-- Delete Button -->
+      <button id="deleteMovieBtn" data-id="<%= movie.id %>">Delete Movie</button>
     <% } %>
+
     <%- include('layout/footer') %>
   </body>
+
+  <script>
+    const deleteBtn = document.getElementById("deleteMovieBtn");
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async () => {
+        const movieId = deleteBtn.dataset.id;
+
+        if (!confirm("Are you sure you want to delete this movie?")) return;
+
+        try {
+          const res = await fetch('/movies/deleteMovie', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: movieId })
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            window.location.href = '/movies';
+          } else {
+            console.error("Failed to delete movie:", data.message);
+          }
+        } catch (error) {
+          console.error("Error deleting movie:", error);
+        }
+      });
+    }
+  </script>
 </html>
