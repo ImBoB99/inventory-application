@@ -60,7 +60,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id: genreId }),
+            body: JSON.stringify({ genreId: genreId }),
           });
 
           const data = await res.json();
