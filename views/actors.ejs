@@ -10,10 +10,23 @@
     <h1>Actors Page</h1>
     <div style="display: flex; flex-direction: column; gap: 1rem">
       <% if (actors) { %> <%actors.forEach(actor => {%>
-      <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem">
-        <h2 style="margin: 0"><%= actor.name %></h2>
+      <div
+        id="actorCard"
+        style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem"
+      >
+        <h2 id="actorNameTitle" style="margin: 0"><%= actor.name %></h2>
+
+        <!-- Hidden edit form initially -->
+        <form action="/actors/editActor" method="post" class="editActorForm" style="display: none; gap: 0.5rem; align-items: center">
+          <input type="hidden" name="actorId" value="<%= actor.id %>" />
+          <input type="text" name="actorName" value="<%= actor.name %>" />
+          <button type="submit">Save</button>
+        </form>
+
+        <button class="editActorBtn">Edit</button>
         <button class="deleteActorBtn" data-id="<%= actor.id %>">x</button>
       </div>
+
       <%})%> <%}%>
     </div>
     <h3>Add New Actor</h3>
@@ -36,9 +49,9 @@
           const res = await fetch("/actors/deleteActor", {
             method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify( {id: actorId})
+            body: JSON.stringify({ id: actorId }),
           });
 
           const data = await res.json();
@@ -47,10 +60,30 @@
           if (data.success) {
             window.location.reload();
           } else {
-            console.error("Server error:", data.message)
+            console.error("Server error:", data.message);
           }
         } catch (error) {
-          console.error("Error deleting actor:", error)
+          console.error("Error deleting actor:", error);
+        }
+      });
+    });
+
+    const editActorButtons = document.querySelectorAll(".editActorBtn");
+
+    editActorButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+
+        const actorCard = button.closest("#actorCard");
+        const nameTitle = actorCard.querySelector("#actorNameTitle");
+        const editForm = actorCard.querySelector(".editActorForm");
+
+        // Toggle visibility
+        if (nameTitle.style.display !== "none") {
+          nameTitle.style.display = "none";
+          editForm.style.display = "inline-flex";
+        } else {
+          nameTitle.style.display = "";
+          editForm.style.display = "none";
         }
       });
     });

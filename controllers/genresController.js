@@ -40,4 +40,22 @@ const genreDeletePost = async (req, res) => {
   }
 }
 
-module.exports = { genreAddPost, genresAllGet, genreDeletePost };
+const genreEditPost = async (req, res) => {
+  console.log("Edit genre :)");
+  const { genreId, genreName } = req.body;
+
+  if (!genreId) {
+    res.status(400).json({success: false, message: "Missing actor ID."})
+  } else {
+    try {
+      await db.editGenre(genreId, genreName)
+      res.redirect("/genres");;
+    } catch (error) {
+      console.error(error);
+      res.redirect("/genres");;
+    }
+  }
+
+};
+
+module.exports = { genreAddPost, genresAllGet, genreDeletePost, genreEditPost };

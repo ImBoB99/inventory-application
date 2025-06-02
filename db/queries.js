@@ -14,12 +14,12 @@ async function getAllMovies() {
 }
 
 async function getAllGenres() {
-  const { rows } = await pool.query("SELECT * FROM genres");
+  const { rows } = await pool.query("SELECT * FROM genres ORDER BY id ASC");
   return rows;
 }
 
 async function getAllActors() {
-  const { rows } = await pool.query("SELECT * FROM actors");
+  const { rows } = await pool.query("SELECT * FROM actors ORDER BY id ASC");
   return rows;
 }
 
@@ -104,6 +104,14 @@ async function deleteMovie(id) {
   await pool.query("DELETE FROM movies WHERE id = $1", [id]);
 }
 
+async function editActor(id, name) {
+  await pool.query("UPDATE actors SET name = $2 WHERE id = $1", [id, name])
+}
+
+async function editGenre(id, name) {
+  await pool.query("UPDATE genres SET name = $2 WHERE id = $1", [id, name])
+}
+
 module.exports = {
   getAllMovies,
   getAllGenres,
@@ -116,4 +124,6 @@ module.exports = {
   deleteActor,
   deleteMoviesWithoutActors,
   deleteMovie,
+  editActor,
+  editGenre,
 };

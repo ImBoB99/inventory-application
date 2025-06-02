@@ -9,15 +9,32 @@
     <%- include('layout/header') %>
     <h1>Genres Page</h1>
     <% if (genres) { %> <%genres.forEach(genre => {%>
-      <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
-        <h2 style="margin: 0;"><%= genre.name %></h2>
-        <button class="deleteGenreBtn" data-id="<%= genre.id %>">x</button>
-      </div>
-    <%})%> <%}%> 
+    <div
+      id="genreCard"
+      style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem"
+    >
+      <h2 id="genreNameTitle" style="margin: 0"><%= genre.name %></h2>
+
+      <!-- Hidden edit form initially -->
+      <form
+        action="/genres/editGenre"
+        method="post"
+        class="editGenreForm"
+        style="display: none; gap: 0.5rem; align-items: center"
+      >
+        <input type="hidden" name="genreId" value="<%= genre.id %>" />
+        <input type="text" name="genreName" value="<%= genre.name %>" />
+        <button type="submit">Save</button>
+      </form>
+
+      <button class="editGenreBtn">Edit</button>
+      <button class="deleteGenreBtn" data-id="<%= genre.id %>">x</button>
+    </div>
+    <%})%> <%}%>
     <h3>Add New Genre</h3>
     <form action="/genres/addGenre" method="post">
       <label for="genreName">Genre Name:</label>
-      <input type="text" name="genreName" id="genreName">
+      <input type="text" name="genreName" id="genreName" />
       <button type="submit">Submit</button>
     </form>
     <%- include('layout/footer') %>
@@ -26,34 +43,57 @@
   <script>
     const deleteGenreBtns = document.querySelectorAll(".deleteGenreBtn");
 
-    deleteGenreBtns.forEach(button => {
+    deleteGenreBtns.forEach((button) => {
       button.addEventListener("click", async () => {
         const genreId = button.dataset.id;
-        console.log(JSON.stringify({ id: genreId}))
-        if (!confirm("Are you sure you want to delete this genre? It will also delete all the movies related with it.")) return;
+        console.log(JSON.stringify({ id: genreId }));
+        if (
+          !confirm(
+            "Are you sure you want to delete this genre? It will also delete all the movies related with it.",
+          )
+        )
+          return;
 
         try {
-          const res = await fetch('/genres/deleteGenre', {
-            method: 'POST',
+          const res = await fetch("/genres/deleteGenre", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({id: genreId})
+            body: JSON.stringify({ id: genreId }),
           });
 
           const data = await res.json();
-          console.log(data)
+          console.log(data);
 
           if (data.success) {
             window.location.reload();
           } else {
-            console.error("Server error:", data.message)
+            console.error("Server error:", data.message);
           }
-
         } catch (error) {
-          console.error("Error deleting genre:", error)
+          console.error("Error deleting genre:", error);
         }
-      })
-    })
+      });
+    });
+
+    const editGenreButtons = document.querySelectorAll(".editGenreBtn");
+
+    editGenreButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const genreCard = button.closest("#genreCard");
+        const nameTitle = genreCard.querySelector("#genreNameTitle");
+        const editForm = genreCard.querySelector(".editGenreForm");
+
+        // Toggle visibility
+        if (nameTitle.style.display !== "none") {
+          nameTitle.style.display = "none";
+          editForm.style.display = "inline-flex";
+        } else {
+          nameTitle.style.display = "";
+          editForm.style.display = "none";
+        }
+      });
+    });
   </script>
 </html>
