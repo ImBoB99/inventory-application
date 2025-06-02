@@ -18,13 +18,15 @@ const movieByIdGet = async (req, res) => {
 
   try {
     const movie = await db.getMovieById(id);
+    const genres = await db.getAllGenres(); // get all genres here for movie editing
+    const actors = await db.getAllActors(); // get all genres here for movie editing
 
     if (!movie) {
       console.warn(`Movie with ID ${id} not found`);
       return res.status(404).render("404");
     }
 
-    res.render("movie", { movie });
+    res.render("movie", { movie, genres, actors });
   } catch (error) {
     console.error("Error retrieving movie:", error);
     res.status(500).render("500"); // Or fall back to "404" if no 500 page exists
@@ -66,4 +68,23 @@ const movieDeletePost = async (req, res) => {
   }
 };
 
-module.exports = { moviesAllGet, movieAddPost, movieByIdGet, movieDeletePost };
+const movieEditPost = async (req, res) => {
+  console.log("Edit movie from the db");
+  let {movieId, movieName, movieGenre, movieActors} = req.body;
+  movieActors = movieActors.split(",");
+
+  if (!movieId || !movieName || !movieGenre || movieActors.length === 0) {
+    return res.status(400).json({ success: false, message: "Missing movie data" });
+  } else {
+    try {
+      await db.editMovie(movieId, movieName, movieGenre, movieActors)
+      res.redirect(`/movie/${movieId}`)
+    } catch (error) {
+      console.error("Failed to add movie:", error);
+      res.redirect(`/movie/${movieId}`)
+    }
+  }
+
+}
+
+module.exports = { moviesAllGet, movieAddPost, movieByIdGet, movieDeletePost, movieEditPost };

@@ -10,15 +10,53 @@
     <h1><%= movie.name %> Page</h1>
 
     <% if (movie) { %>
-      <h2><%= movie.name %></h2>
-      <h3>Genre: <%= movie.genre %></h3>
-      <h3>Actors: <%= movie.actors.join(', ') %></h3>
+    <div class="movieCard">
+      <h2 class="movieNameTitle"><%= movie.name %></h2>
+      <h3 class="movieGenreTitle">Genre: <%= movie.genre %></h3>
+      <h3 class="movieActorsTitle">Actors: <%= movie.actors.join(', ') %></h3>
 
-      <!-- Delete Button -->
-      <button id="deleteMovieBtn" data-id="<%= movie.id %>">Delete Movie</button>
-    <% } %>
+          <!-- Hidden edit form initially -->
+    <form
+      action="/movies/editMovie"
+      method="post"
+      class="editMovieForm"
+      style="display: none; flex-direction: column; gap: 0.5rem; max-width: 300px;"
+    >
+      <input type="hidden" name="movieId" value="<%= movie.id %>" />
+      <input type="text" name="movieName" value="<%= movie.name %>" />
+      <% if (genres) { %>
+      <label for="movieGenre">Movie Genre:</label>
+      <select name="movieGenre" id="movieGenre">
+        <% genres.forEach(genre => { %>
+        <option value="<%= genre.id %>"><%= genre.name %></option>
+        <% }) %>
+      </select>
+      <% } %>
 
-    <%- include('layout/footer') %>
+      <% if (actors) { %>
+        <label for="movieActors">Movie Actors:</label>
+        <select id="actorSelect">
+          <% actors.forEach(actor => { %>
+            <option value="<%= actor.id %>"><%= actor.name %></option>
+          <% }) %>
+        </select>
+        <button type="button" onclick="addActor()">Add Actor</button>
+        
+        <ul id="selectedActorsList"></ul>
+        
+        <!-- Hidden input for form submission -->
+        <input type="hidden" name="movieActors" id="movieActorsInput">
+        
+      <% } %>
+
+      <button type="submit">Save</button>
+    </form>
+
+      <button class="editMovieBtn">Edit</button>
+      <button class="deleteMovieBtn" data-id="<%= movie.id %>">Delete Movie</button>
+    </div>
+
+    <% } %> <%- include('layout/footer') %>
   </body>
 
   <script>
@@ -31,18 +69,18 @@
         if (!confirm("Are you sure you want to delete this movie?")) return;
 
         try {
-          const res = await fetch('/movies/deleteMovie', {
-            method: 'POST',
+          const res = await fetch("/movies/deleteMovie", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id: movieId })
+            body: JSON.stringify({ id: movieId }),
           });
 
           const data = await res.json();
 
           if (data.success) {
-            window.location.href = '/movies';
+            window.location.href = "/movies";
           } else {
             console.error("Failed to delete movie:", data.message);
           }
@@ -50,6 +88,68 @@
           console.error("Error deleting movie:", error);
         }
       });
+    }
+
+    const editMovieButton = document.querySelector(".editMovieBtn");
+
+    editMovieButton.addEventListener("click", () => {
+      const movieCard = editMovieButton.closest(".movieCard");
+      const nameTitle = movieCard.querySelector(".movieNameTitle");
+      const genreTitle = movieCard.querySelector(".movieGenreTitle");
+      const actorsTitle = movieCard.querySelector(".movieActorsTitle");
+      const editForm = movieCard.querySelector(".editMovieForm"); // make sure you have this in your HTML!
+
+      if (nameTitle.style.display !== "none") {
+        nameTitle.style.display = "none";
+        genreTitle.style.display = "none";
+        actorsTitle.style.display = "none";
+        editForm.style.display = "flex";
+      } else {
+        nameTitle.style.display = "";
+        genreTitle.style.display = "";
+        actorsTitle.style.display = "";
+        editForm.style.display = "none";
+      }
+    });
+
+
+    const selectedActorIds = new Set();
+    const actorSelect = document.getElementById("actorSelect");
+    const selectedList = document.getElementById("selectedActorsList");
+    const hiddenInput = document.getElementById("movieActorsInput");
+  
+    function addActor() {
+      const actorId = actorSelect.value;
+      const actorName = actorSelect.options[actorSelect.selectedIndex].text;
+  
+      if (!selectedActorIds.has(actorId)) {
+        selectedActorIds.add(actorId);
+        console.log(selectedActorIds)
+  
+        const div = document.createElement("div")
+        const removeBtn = document.createElement("button")
+        const li = document.createElement("li");
+        div.style.display = "flex"
+        removeBtn.textContent = "X"
+        li.textContent = actorName;
+        li.dataset.id = actorId;
+        div.append(li, removeBtn)
+        selectedList.appendChild(div);
+
+        removeBtn.addEventListener("click", () => {
+          const idToRemove = li.dataset.id;
+          selectedActorIds.delete(idToRemove);
+          div.remove();
+          updateHiddenInput();
+          console.log(selectedActorIds)
+        })
+  
+        updateHiddenInput();
+      }
+    }
+  
+    function updateHiddenInput() {
+      hiddenInput.value = Array.from(selectedActorIds).join(',');
     }
   </script>
 </html>

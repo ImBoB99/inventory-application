@@ -105,11 +105,47 @@ async function deleteMovie(id) {
 }
 
 async function editActor(id, name) {
-  await pool.query("UPDATE actors SET name = $2 WHERE id = $1", [id, name])
+  await pool.query("UPDATE actors SET name = $2 WHERE id = $1", [id, name]);
 }
 
 async function editGenre(id, name) {
-  await pool.query("UPDATE genres SET name = $2 WHERE id = $1", [id, name])
+  await pool.query("UPDATE genres SET name = $2 WHERE id = $1", [id, name]);
+}
+
+async function editMovie(id, name, genreId, actorIds) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    await client.query("UPDATE movies SET name = $2 WHERE id = $1", [id, name]);
+    await client.query("UPDATE movies SET genre_id = $2 WHERE id = $1", [id, genreId]);
+
+    // Clean up actorIds: trim and remove empty strings
+    actorIds = actorIds.map((id) => id.trim()).filter((id) => id.length > 0);
+
+    if (!actorIds || actorIds.length === 0) {
+      throw new Error("At least one actor is required to add a movie.");
+    }
+
+    // delete movie - actor references from the movie_actors table
+    await client.query("DELETE FROM movie_actors WHERE movie_id = $1", [id]);
+
+    // insert a new list of references
+    for (const actorId of actorIds) {
+      await client.query("INSERT INTO movie_actors (movie_id, actor_id) VALUES ($1, $2)", [
+        id,
+        actorId,
+      ]);
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 module.exports = {
@@ -126,4 +162,5 @@ module.exports = {
   deleteMovie,
   editActor,
   editGenre,
+  editMovie,
 };
