@@ -12,7 +12,7 @@
       <% if (actors) { %> <%actors.forEach(actor => {%>
       <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem">
         <h2 style="margin: 0"><%= actor.name %></h2>
-        <button id="deleteActor" data-id="<%= actor.id %>">x</button>
+        <button class="deleteActorBtn" data-id="<%= actor.id %>">x</button>
       </div>
       <%})%> <%}%>
     </div>
@@ -26,7 +26,7 @@
   </body>
 
   <script>
-    const deleteActorButtons = document.querySelectorAll("#deleteActor");
+    const deleteActorButtons = document.querySelectorAll(".deleteActorBtn");
 
     deleteActorButtons.forEach((button) => {
       button.addEventListener("click", async () => {

@@ -11,7 +11,7 @@
     <% if (genres) { %> <%genres.forEach(genre => {%>
       <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
         <h2 style="margin: 0;"><%= genre.name %></h2>
-        <button id="deleteGenre" data-id="<%= genre.id %>">x</button>
+        <button class="deleteGenreBtn" data-id="<%= genre.id %>">x</button>
       </div>
     <%})%> <%}%> 
     <h3>Add New Genre</h3>
@@ -24,7 +24,7 @@
   </body>
 
   <script>
-    const deleteGenreBtns = document.querySelectorAll("#deleteGenre");
+    const deleteGenreBtns = document.querySelectorAll(".deleteGenreBtn");
 
     deleteGenreBtns.forEach(button => {
       button.addEventListener("click", async () => {
